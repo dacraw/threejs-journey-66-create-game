@@ -1,6 +1,6 @@
 import { useGLTF } from "@react-three/drei";
 import { useFrame } from "@react-three/fiber";
-import { RigidBody } from "@react-three/rapier";
+import { CuboidCollider, RigidBody } from "@react-three/rapier";
 import { useMemo, useRef, useState } from "react";
 import * as THREE from "three";
 
@@ -187,34 +187,39 @@ export function BlockAxe({ position = [0, 0, 0] }) {
   );
 }
 
-function Bound({ position = [0, 0, 0] }) {
-  return (
-    <mesh
-      geometry={boxGeometry}
-      material={wallMaterial}
-      position={position}
-      scale={[0.3, 1.5, 4]}
-    />
-  );
-}
-
 function Bounds({ length = 1 }) {
-  const walls = useMemo(() => {
-    const walls = [];
-
-    for (let i = 0; i < length; i++) {
-      walls.push(Bound);
-    }
-
-    return walls;
-  }, [length]);
-
   return (
-    <RigidBody type="fixed">
-      {walls.map((Wall, idx) => (
-        <Wall key={idx} position={[2 - 0.3 / 2, 0.75, -idx * 4]} />
-      ))}
-    </RigidBody>
+    <>
+      <RigidBody type="fixed" restitution={0.2} friction={0}>
+        <mesh
+          position={[2.15, 0.75, -(length * 2) + 2]}
+          geometry={boxGeometry}
+          material={wallMaterial}
+          scale={[0.3, 1.5, 4 * length]}
+          castShadow
+        />
+        <mesh
+          position={[-2.15, 0.75, -(length * 2) + 2]}
+          geometry={boxGeometry}
+          material={wallMaterial}
+          scale={[0.3, 1.5, 4 * length]}
+          receiveShadow
+        />
+        <mesh
+          position={[0, 0.75, -(length * 4) + 2]}
+          geometry={boxGeometry}
+          material={wallMaterial}
+          scale={[4, 1.5, 0.3]}
+          receiveShadow
+        />
+        <CuboidCollider
+          restitution={0.2}
+          friction={1}
+          args={[2, 0.1, 2 * length]}
+          position={[0, -0.1, -(length * 2) + 2]}
+        />
+      </RigidBody>
+    </>
   );
 }
 
