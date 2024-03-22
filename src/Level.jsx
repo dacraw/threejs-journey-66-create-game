@@ -187,6 +187,37 @@ export function BlockAxe({ position = [0, 0, 0] }) {
   );
 }
 
+function Bound({ position = [0, 0, 0] }) {
+  return (
+    <mesh
+      geometry={boxGeometry}
+      material={wallMaterial}
+      position={position}
+      scale={[0.3, 1.5, 4]}
+    />
+  );
+}
+
+function Bounds({ length = 1 }) {
+  const walls = useMemo(() => {
+    const walls = [];
+
+    for (let i = 0; i < length; i++) {
+      walls.push(Bound);
+    }
+
+    return walls;
+  }, [length]);
+
+  return (
+    <RigidBody type="fixed">
+      {walls.map((Wall, idx) => (
+        <Wall key={idx} position={[2 - 0.3 / 2, 0.75, -idx * 4]} />
+      ))}
+    </RigidBody>
+  );
+}
+
 export function Level({
   count = 5,
   types = [BlockSpinner, BlockAxe, BlockLimbo],
@@ -210,6 +241,8 @@ export function Level({
       ))}
 
       <BlockEnd position={[0, 0, -(count + 1) * 4]} />
+
+      <Bounds length={count + 2} />
     </>
   );
 }
