@@ -1,7 +1,7 @@
 import { useGLTF } from "@react-three/drei";
 import { useFrame } from "@react-three/fiber";
 import { RigidBody } from "@react-three/rapier";
-import { useRef, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import * as THREE from "three";
 
 const boxGeometry = new THREE.BoxGeometry(1, 1, 1);
@@ -53,7 +53,7 @@ function BlockEnd({ position = [0, 0, 0] }) {
   );
 }
 
-function BlockSpinner({ position = [0, 0, 0] }) {
+export function BlockSpinner({ position = [0, 0, 0] }) {
   const obstacle = useRef();
 
   const [speed] = useState(
@@ -97,7 +97,7 @@ function BlockSpinner({ position = [0, 0, 0] }) {
   );
 }
 
-function BlockLimbo({ position = [0, 0, 0] }) {
+export function BlockLimbo({ position = [0, 0, 0] }) {
   const obstacle = useRef();
 
   const [timeOffset] = useState(() => Math.random() * Math.PI * 2);
@@ -142,7 +142,7 @@ function BlockLimbo({ position = [0, 0, 0] }) {
   );
 }
 
-function BlockAxe({ position = [0, 0, 0] }) {
+export function BlockAxe({ position = [0, 0, 0] }) {
   const obstacle = useRef();
 
   const [timeOffset] = useState(() => Math.random() * Math.PI * 2);
@@ -187,14 +187,29 @@ function BlockAxe({ position = [0, 0, 0] }) {
   );
 }
 
-export default function Level() {
+export function Level({
+  count = 5,
+  types = [BlockSpinner, BlockAxe, BlockLimbo],
+}) {
+  const blocks = useMemo(() => {
+    const blocks = [];
+
+    for (let i = 0; i < count; i++) {
+      const type = types[Math.floor(Math.random() * types.length)];
+      blocks.push(type);
+    }
+
+    return blocks;
+  }, [count, types]);
+
   return (
     <>
-      <BlockStart position={[0, 0, 16]} />
-      <BlockSpinner position={[0, 0, 12]} />
-      <BlockLimbo position={[0, 0, 8]} />
-      <BlockAxe position={[0, 0, 4]} />
-      <BlockEnd position={[0, 0, 0]} />
+      <BlockStart position={[0, 0, 0]} />
+      {blocks.map((Block, i) => (
+        <Block key={i} position={[0, 0, -(i + 1) * 4]} />
+      ))}
+
+      <BlockEnd position={[0, 0, -(count + 1) * 4]} />
     </>
   );
 }
