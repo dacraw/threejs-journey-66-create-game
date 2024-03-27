@@ -10,7 +10,7 @@ export default function Player() {
   const [subscribeKeys, getKeys] = useKeyboardControls();
   const { rapier, world } = useRapier();
   const start = useGame((state) => state.start);
-  const gameEnd = useGame((state) => state.gameEnd);
+  const gameEnd = useGame((state) => state.end);
   const blocksCount = useGame((state) => state.blocksCount);
   const restart = useGame((state) => state.restart);
 
@@ -32,7 +32,20 @@ export default function Player() {
     }
   };
 
+  const reset = () => {
+    body.current.setTranslation({ x: 0, y: 1, z: 0 });
+    body.current.setLinvel({ x: 0, y: 0, z: 0 });
+    body.current.setAngvel({ x: 0, y: 0, z: 0 });
+  };
+
   useEffect(() => {
+    const unsubscribeReset = useGame.subscribe(
+      (state) => state.phase,
+      (phase) => {
+        if (phase === "ready") reset();
+      }
+    );
+
     const unsubscribeJump = subscribeKeys(
       (state) => {
         // selector function; want to listen to change in state of keys
@@ -53,8 +66,9 @@ export default function Player() {
     return () => {
       unsubscribeJump();
       unsubscribeAny();
+      unsubscribeReset();
     };
-  });
+  }, []);
 
   useFrame((state, delta) => {
     /* Controls */
