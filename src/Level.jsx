@@ -1,4 +1,4 @@
-import { useGLTF } from "@react-three/drei";
+import { Float, Text, useGLTF } from "@react-three/drei";
 import { useFrame } from "@react-three/fiber";
 import { CuboidCollider, RigidBody } from "@react-three/rapier";
 import { useMemo, useRef, useState } from "react";
@@ -32,6 +32,20 @@ function BlockEnd({ position = [0, 0, 0] }) {
 
   return (
     <group position={position}>
+      <Float floatIntensity={0.25} rotationIntensity={0.25}>
+        <Text
+          scale={1}
+          font="./bebas-neue-v9-latin-regular.woff"
+          maxWidth={0.25}
+          lineHeight={0.75}
+          textAlign="right"
+          position={[0, 2.25, 2]}
+          rotation-y={-0.25}
+        >
+          FINISH
+          <meshBasicMaterial toneMapped={false} />
+        </Text>
+      </Float>
       <mesh
         position={[0, 0, 0]}
         receiveShadow
@@ -241,6 +255,20 @@ export function Level({
 
   return (
     <>
+      <Float floatIntensity={0.25} rotationIntensity={0.25}>
+        <Text
+          scale={0.5}
+          font="./bebas-neue-v9-latin-regular.woff"
+          maxWidth={0.25}
+          lineHeight={0.75}
+          textAlign="right"
+          position={[0.75, 0.9, 0]}
+          rotation-y={-0.25}
+        >
+          Ball Slammer
+          <meshBasicMaterial toneMapped={false} />
+        </Text>
+      </Float>
       <BlockStart position={[0, 0, 0]} />
       {blocks.map((Block, i) => (
         <Block key={i} position={[0, 0, -(i + 1) * 4]} />
