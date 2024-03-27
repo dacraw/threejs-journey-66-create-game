@@ -3,11 +3,16 @@ import { useFrame } from "@react-three/fiber";
 import { RigidBody, useRapier } from "@react-three/rapier";
 import { useEffect, useRef, useState } from "react";
 import * as THREE from "three";
+import useGame from "./stores/useGame";
 
 export default function Player() {
   const body = useRef();
   const [subscribeKeys, getKeys] = useKeyboardControls();
   const { rapier, world } = useRapier();
+  const start = useGame((state) => state.start);
+  const gameEnd = useGame((state) => state.gameEnd);
+  const blocksCount = useGame((state) => state.blocksCount);
+  const restart = useGame((state) => state.restart);
 
   const [smoothedCameraPosition] = useState(
     () => new THREE.Vector3(10, 10, 10)
@@ -40,9 +45,14 @@ export default function Player() {
       }
     );
 
+    const unsubscribeAny = subscribeKeys(() => {
+      start();
+    });
+
     // cleanup to prevent multiple subscribing to jump when component changes
     return () => {
       unsubscribeJump();
+      unsubscribeAny();
     };
   });
 
@@ -90,6 +100,15 @@ export default function Player() {
 
     state.camera.position.copy(smoothedCameraPosition);
     state.camera.lookAt(smoothedCameraTarget);
+
+    /** Phases */
+    if (bodyPosition.z < -(blocksCount * 4 + 2)) {
+      gameEnd();
+    }
+
+    if (bodyPosition.y < -4) {
+      restart();
+    }
   });
   return (
     <RigidBody
